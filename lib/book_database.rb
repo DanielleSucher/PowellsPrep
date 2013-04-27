@@ -22,6 +22,10 @@ class BookDatabase
     collection(:books).find({"isbn" => isbn}).to_a.first
   end
 
+  def find_books(constraints)
+    collection(:books).find(constraints).to_a
+  end
+
   def save_book(book)
     if find_book book.isbn
       collection(:books).update({"isbn" => book.isbn}, book.attributes)

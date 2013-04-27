@@ -5,6 +5,10 @@ class Book
     database.all(:books).map { |book| Book.new book }
   end
 
+  def self.all_cheaper_at_powells
+    database.find_books('cheaper_at_powells' => true).map { |book| Book.new book }
+  end
+
   def self.create(attributes)
     book = new(attributes)
     book.save
