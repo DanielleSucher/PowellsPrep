@@ -5,13 +5,13 @@ class Book
     database.all(:books).map { |book| Book.new book }
   end
 
-  def self.all_cheaper_at_powells
-    database.find_books('cheaper_at_powells' => true).map { |book| Book.new book }
-  end
-
   def self.create(attributes)
     book = new(attributes)
     book.save
+  end
+
+  def self.export_locations
+    File.open('powells_locations.txt', 'w') { |f| PP.pp locations, f }
   end
 
   def self.find(isbn)
@@ -62,8 +62,42 @@ class Book
 
   private
 
+    def self.all_cheaper_at_powells
+      database.find_books('cheaper_at_powells' => true).map { |book| Book.new book }
+    end
+
+    def self.alphabetize
+      @locations.each do |store_name, major_sections|
+        major_sections.each do |major_section, minor_sections|
+          minor_sections.each do |minor_section, books|
+            @locations[store_name][major_section][minor_section] = books.sort_by { |book| book[:author].split(' ').last }
+          end
+        end
+      end
+    end
+
     def self.database
       BookDatabase.new
+    end
+
+    def self.locations
+      return @locations if @locations
+      @locations = {}
+      all_cheaper_at_powells.each do |book|
+        book.locations.each do |loc|
+          next if loc['store'].match(/warehouse/) || loc['price'].nil? || loc['price'].to_f >= book.amazon_total_cost.to_f
+          @locations[loc['store']] ||= {}
+          @locations[loc['store']][loc['major_section']] ||= {}
+          @locations[loc['store']][loc['major_section']][loc['minor_section']] ||= []
+          @locations[loc['store']][loc['major_section']][loc['minor_section']] << {title: book.title,
+                                                                                   author: book.author,
+                                                                                   isbn: book.isbn,
+                                                                                   price: loc['price'],
+                                                                                   shelf_location: loc['shelf_location']}
+        end
+      end
+      alphabetize
+      @locations
     end
 
     def set_attributes
