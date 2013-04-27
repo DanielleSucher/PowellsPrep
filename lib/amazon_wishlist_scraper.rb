@@ -3,7 +3,7 @@ class AmazonWishlistScraper
     @agent = Mechanize.new
     @agent.user_agent = "Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1"
     @url = <<-EOS
-      http://www.amazon.com/registry/wishlist/#{ENV['USER_ID']}/ref=cm_wl_sb_o?
+      http://www.amazon.com/registry/wishlist/#{ENV['AMAZON_USER_ID']}/ref=cm_wl_sb_o?
       reveal=unpurchased&filter=all&sort=date-added&layout=compact&x=6&y=13
       EOS
   end

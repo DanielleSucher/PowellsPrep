@@ -21,7 +21,7 @@ class Powells
     end
 
     def api_key
-      @api_key ||= ENV['API_KEY']
+      @api_key ||= ENV['POWELLS_API_KEY']
     end
 
     def base_url
@@ -74,4 +74,12 @@ class Powells
                   author: book[:author],
                   title: book[:title]
     end
+end
+
+if __FILE__ == $0
+  powells = Powells.new
+  powells.store_books_in_database
+  powells.update_book_locations
+  Book.mark_all_cheaper_at_powells
+  Book.export_locations
 end
