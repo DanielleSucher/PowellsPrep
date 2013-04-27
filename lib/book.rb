@@ -11,7 +11,23 @@ class Book
   end
 
   def self.export_locations
-    File.open('powells_locations.txt', 'w') { |f| PP.pp locations, f }
+    File.open('powells_shopping_list.txt', 'w') do |f|
+      locations.each do |store_name, major_sections|
+        f.puts "\n\n#{store_name.split('-').map { |w| w.capitalize }.join(' ')}"
+        major_sections.sort.each do |major_section, minor_sections|
+          f.puts "#{' ' * 5}#{major_section}"
+          minor_sections.sort.each do |minor_section, shelf_locations|
+            f.puts "#{' ' * 5 * 2}#{minor_section}"
+            shelf_locations.sort.each do |shelf_location, books|
+              f.puts "#{' ' * 5 * 3}shelf: #{shelf_location}"
+              books.sort_by { |book| book[:author].split(' ').last }.each do |book|
+                f.puts "#{' ' * 5 * 4}#{book[:title]} - #{book[:author]} - #{book[:isbn]} - #{book[:price]}"
+              end
+            end
+          end
+        end
+      end
+    end
   end
 
   def self.find(isbn)
@@ -66,16 +82,6 @@ class Book
       database.find_books('cheaper_at_powells' => true).map { |book| Book.new book }
     end
 
-    def self.alphabetize
-      @locations.each do |store_name, major_sections|
-        major_sections.each do |major_section, minor_sections|
-          minor_sections.each do |minor_section, books|
-            @locations[store_name][major_section][minor_section] = books.sort_by { |book| book[:author].split(' ').last }
-          end
-        end
-      end
-    end
-
     def self.database
       BookDatabase.new
     end
@@ -88,15 +94,15 @@ class Book
           next if loc['store'].match(/warehouse/) || loc['price'].nil? || loc['price'].to_f >= book.amazon_total_cost.to_f
           @locations[loc['store']] ||= {}
           @locations[loc['store']][loc['major_section']] ||= {}
-          @locations[loc['store']][loc['major_section']][loc['minor_section']] ||= []
-          @locations[loc['store']][loc['major_section']][loc['minor_section']] << {title: book.title,
-                                                                                   author: book.author,
-                                                                                   isbn: book.isbn,
-                                                                                   price: loc['price'],
-                                                                                   shelf_location: loc['shelf_location']}
+          @locations[loc['store']][loc['major_section']][loc['minor_section']] ||= {}
+          shelf_location = loc['shelf_location'] || 'unknown'
+          @locations[loc['store']][loc['major_section']][loc['minor_section']][shelf_location] ||= Set.new
+          @locations[loc['store']][loc['major_section']][loc['minor_section']][shelf_location] << {title: book.title,
+                                                                                                   author: book.author,
+                                                                                                   isbn: book.isbn,
+                                                                                                   price: loc['price']}
         end
       end
-      alphabetize
       @locations
     end
 
