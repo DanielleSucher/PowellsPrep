@@ -2,6 +2,6 @@ Every time I visit Portland, I spend hours in [Powell's Books](powells.com) - mu
 
 This year, I figured I could be more efficient.
 
-I scraped my Amazon wishlist data and used the Powell's API to get their prices and store locations (including section and shelf location, even!) for all the books on my Amazon wishlist, then stuck all that in MongoDB.
+I scraped my Amazon wishlist data and used the Powell's API to get their prices and store locations (including section and shelf location, even!) for all the books on my Amazon wishlist, then stuck all that in MongoDB. Then I selected only those books that are sufficiently cheaper at Powell's as to be worth lugging home in my suitcase, and organized those by location in the store(s).
 
-TODO: Select only those books that are sufficiently cheaper at Powell's as to be worth lugging home in my suitcase and then plan an optimal route through the various Powell's locations to pick them up while I'm there.
+TODO: Plan an optimal route through the various Powell's locations to pick them up while I'm there.
